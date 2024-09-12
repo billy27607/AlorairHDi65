@@ -5,8 +5,6 @@
 
 uint8_t csPin = D7;
 mcp2515_can CAN(csPin);
-unsigned long interval = 5000;
-unsigned long = last_read = 0;
 
 AlorairHDi65::AlorairHDi65(uint8_t Pin) {
     // Serial.print("Initializing CAN with csPin: ");
