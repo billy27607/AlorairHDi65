@@ -16,11 +16,11 @@ AlorairHDi65::AlorairHDi65(uint8_t Pin) {
 
 
 bool AlorairHDi65::begin() {
-    unsigned long int start = millis();
+    unsigned long start = millis();
     while (CAN_OK != CAN.begin(CAN_50KBPS)) {
         Serial.println("CAN init fail, retrying...");
         delay(100);
-        if (millis() - start > 5000) return 0;
+        if ((millis() - start) > 5000) return 0;
     }
     // Serial.println("CAN init ok!");
     return true;
