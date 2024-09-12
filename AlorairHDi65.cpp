@@ -5,20 +5,24 @@
 
 uint8_t csPin = D7;
 mcp2515_can CAN(csPin);
+unsigned long interval = 5000;
+unsigned long = last_read = 0;
 
 AlorairHDi65::AlorairHDi65(uint8_t Pin) {
-    Serial.print("Initializing CAN with csPin: ");
+    // Serial.print("Initializing CAN with csPin: ");
     csPin = Pin;
-    Serial.println(csPin);
+    // Serial.println(csPin);
 }
 
 
 bool AlorairHDi65::begin() {
+    unsigned long int start = millis();
     while (CAN_OK != CAN.begin(CAN_50KBPS)) {
-        Serial.println("CAN init fail, retry...");
+        Serial.println("CAN init fail, retrying...");
         delay(100);
+        if (millis() - start > 5000) return 0;
     }
-    Serial.println("CAN init ok!");
+    // Serial.println("CAN init ok!");
     return true;
 }
 
