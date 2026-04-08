@@ -15,14 +15,13 @@ AlorairHDi65::AlorairHDi65(uint8_t Pin) {
 
 bool AlorairHDi65::begin() {
     unsigned long start = millis();
-    while (CAN_OK != CAN.begin(CAN_50KBPS)) {
+    while (true) {
+        pinMode(csPin, OUTPUT);  // re-assert OUTPUT before every CAN.begin() attempt
+        if (CAN_OK == CAN.begin(CAN_50KBPS)) break;
         connected = false;
         Serial.println("CAN init fail, retrying...");
         delay(100);
-        if ((millis() - start) > 5000) {
-            pinMode(csPin, OUTPUT);  // restore pin mode after repeated SPI init attempts
-            return connected;
-        }
+        if ((millis() - start) > 5000) return connected;
     }
     // Serial.println("CAN init ok!");
     connected = true;
@@ -34,6 +33,7 @@ bool AlorairHDi65::isConnected() {
 }
 
 bool AlorairHDi65::sendGet(unsigned char *to_be_sent, unsigned char *received) {
+    pinMode(csPin, OUTPUT);
     CAN.sendMsgBuf(0x123, 0, 8, to_be_sent);
     unsigned long start_time = millis();
     unsigned long time_out = 400;
@@ -61,8 +61,12 @@ bool AlorairHDi65::status() {
         targetHumidity = in_msg[1];
         currentHumidity = in_msg[0];
         currentTemperature = in_msg[3];
+        connected = true;
         return true;
-    } else return false;
+    } else {
+        connected = false;
+        return false;
+    }
 }
 
 void AlorairHDi65::printStatus() {
