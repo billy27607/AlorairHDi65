@@ -51,16 +51,23 @@ struct HumidifierDehumidifier : Service::HumidifierDehumidifier
 		//  the dehumidifier
 		if (currentState.timeVal() > 5000)
 		{
+			if (alorair.isConnected()) {
 			alorair.status();
-			if (alorair.currentStatus == true)
-				currentState.setVal(3);
-			else
-				currentState.setVal(1);
+				if (alorair.currentStatus == true)
+					currentState.setVal(3);
+				else
+					currentState.setVal(1);
+			}
 		}
+		if (alorair.isConnected()) {
+			if (humidity.timeVal() > 5000 && fabs(humidity.getVal<float>() - alorair.currentHumidity) > 0.25)
+			{ // if it's been more than 5 seconds since last update, and humidity has changed
+				humidity.setVal(alorair.currentHumidity);
+			}
+			else {
+				humidity.setVal(0);
+			}
 
-		if (humidity.timeVal() > 5000 && fabs(humidity.getVal<float>() - alorair.currentHumidity) > 0.25)
-		{ // if it's been more than 5 seconds since last update, and humidity has changed
-			humidity.setVal(alorair.currentHumidity);
 		}
 
 		if (active.getVal() == 0)
@@ -116,7 +123,8 @@ void setup()
 
 	Serial.begin(115200);
 
-	homeSpan.enableOTA();
+	homeSpan.enableOTA(false);
+	homeSpan.enableAutoStartAP();
 	homeSpan.begin(Category::Humidifiers, "HomeSpan Humidifier");
 
 	String mac = WiFi.macAddress();
@@ -127,7 +135,6 @@ void setup()
 		new Characteristic::Name("AlorAirHDi65");
 		new Characteristic::FirmwareRevision("0.9.0");
 		new Characteristic::Manufacturer("AlorAir");
-		new Characteristic::SerialNumber(mac);
 
 
 	new HumidifierDehumidifier();

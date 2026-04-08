@@ -16,12 +16,21 @@ AlorairHDi65::AlorairHDi65(uint8_t Pin) {
 bool AlorairHDi65::begin() {
     unsigned long start = millis();
     while (CAN_OK != CAN.begin(CAN_50KBPS)) {
+        connected = false;
         Serial.println("CAN init fail, retrying...");
         delay(100);
-        if ((millis() - start) > 5000) return 0;
+        if ((millis() - start) > 5000) {
+            pinMode(csPin, OUTPUT);  // restore pin mode after repeated SPI init attempts
+            return connected;
+        }
     }
     // Serial.println("CAN init ok!");
-    return true;
+    connected = true;
+    return connected;
+}
+
+bool AlorairHDi65::isConnected() {
+    return connected;
 }
 
 bool AlorairHDi65::sendGet(unsigned char *to_be_sent, unsigned char *received) {

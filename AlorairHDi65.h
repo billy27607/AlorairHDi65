@@ -7,15 +7,17 @@
 class AlorairHDi65
 {
 public:
-    float currentHumidity;
-    float targetHumidity;
-    float currentTemperature;
+    float currentHumidity = 0;
+    float targetHumidity = 0;
+    float currentTemperature = 0;
     bool currentStatus;
     bool powerState;
     bool pumpState;
+    bool connected = false;
 
     AlorairHDi65(uint8_t csPin);
     bool begin();
+    bool isConnected();
     bool status();
     void printStatus();
     bool setPower(bool state);
